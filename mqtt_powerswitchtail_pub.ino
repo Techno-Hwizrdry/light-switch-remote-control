@@ -1,11 +1,11 @@
 /*
  * Author:  Alexan Mardigian
  * 
- * This sketch will turn a Powerswitch Tail 2 either on or off, via MQTT
- * subscription, using a simple push button switch.
+ * This sketch will switch a Powerswitch Tail 2 either on or off, via MQTT
+ * publication, using a simple push button switch.
  * 
  * 
- * This sketch has been created for the Wemos D1 Mini, but can be modified
+ * This sketch was created for the Wemos D1 Mini, but it can be modified
  * to run on other ESP8266 boards.  After uploading the code to the Wemos D1 Mini,
  * wire the D3 pin to one pin of your push button switch.  Then wire GND on the Wemos 
  * D1 mini to the other pin of your push button switch.
