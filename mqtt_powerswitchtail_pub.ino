@@ -30,8 +30,8 @@ int button_state = 0;
 int lampState = LOW;
 int prevButtonState = 0;   // The previous state of the button.
 
+const long DEBOUNCE = 200;   // The debounce time, in milliseconds.
 long toggleTime = 0;   // The last time the output pin was toggled.
-long debounce = 200;   // The debounce time, in milliseconds.
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -61,7 +61,7 @@ void setup()
   Serial.println("connected.");
 
   // Connect to the MQTT server.
-  client.setServer(MQTT_SERVER, MQTT_PORT);
+  client.setServer(MQTT_SERVER_IP, MQTT_PORT);
   client.setCallback(callback);
 
   connect_to_mqtt_server();
@@ -77,7 +77,7 @@ void loop()
 
   button_state = digitalRead(BUTTON_PIN);
 
-  if (button_state != prevButtonState && millis() - toggleTime > debounce){
+  if (button_state != prevButtonState && millis() - toggleTime > DEBOUNCE) {
     if (lampState == LOW) {
       client.publish(MQTT_TOPIC, ON);
     } else {
@@ -93,13 +93,13 @@ void loop()
 void connect_to_mqtt_server()
 {
   Serial.print("Connecting to MQTT server ");
-  Serial.print(MQTT_SERVER);
+  Serial.print(MQTT_SERVER_IP);
   Serial.print("..");
   
   while (! client.connected()) {
     Serial.print(".");
  
-    if (client.connect(MQTT_CLIENT_NAME, MQTT_USER, MQTT_PASSWORD )) {
+    if (client.connect(MQTT_CLIENT_NAME, MQTT_USER, MQTT_PASSWORD)) {
       Serial.println("connected.");  
     } else {
       Serial.print("failed with state ");

@@ -5,7 +5,7 @@
 const char* NETWORK_SSID = "";
 const char* NETWORK_PASSWORD = "";
 
-const char* MQTT_SERVER = "";
+const char* MQTT_SERVER_IP = "";  // IP address of your MQTT server.
 const char* MQTT_USER = "";
 const char* MQTT_PASSWORD = "";
 const char* MQTT_TOPIC = "";
