@@ -21,4 +21,4 @@ const char caCert[] PROGMEM = R"EOF(
 -----END CERTIFICATE-----
 )EOF";
 
-const uint8_t mqttCertFingerprint[] = {Your, MQTT, brokero cert, fingerprint, here};
+const uint8_t mqttCertFingerprint[] = {Your, MQTT, broker, cert, fingerprint, here};
