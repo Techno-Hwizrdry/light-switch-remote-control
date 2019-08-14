@@ -10,3 +10,5 @@ Then wire GND on the Wemos D1 Mini to the other pin of your push button switch.
 
 ## secrets.h
 Before you compile and upload to your board, you will need to enter the details of your wifi network and MQTT server in secrets.h.
+
+If you do not want to use TLS encrpytion, simply comment out `"#define ENABLE_SSL"` in mqtt_powerswitchtail_pub.ino.
