@@ -18,13 +18,24 @@
 #include <PubSubClient.h>
 #include "secrets.h"
 
+#define ENABLE_SSL
+
 const int BUTTON_PIN = D3;
 const int BAUD_SPEED = 115200;
 const char* OFF = "0";
 const char* ON = "1";
 
-const int MQTT_PORT = 1883;
 const char* MQTT_CLIENT_NAME = "wemosD1MiniPowerswitchTailButton1";
+
+#ifdef ENABLE_SSL
+  const int MQTT_PORT = 8883;
+
+  X509List caCertX509(caCert);
+  WiFiClientSecure espClient;
+#else
+  const int MQTT_PORT = 1883;
+  WiFiClient espClient;
+#endif
 
 int button_state = 0;
 int lampState = LOW;
@@ -59,6 +70,13 @@ void setup()
   }
   
   Serial.println("connected.");
+
+#ifdef ENABLE_SSL
+  // Configure secure client connection.
+  espClient.setTrustAnchors(&caCertX509);         // Load CA cert into trust store.
+  espClient.allowSelfSignedCerts();               // Enable self-signed cert support.
+  espClient.setFingerprint(mqttCertFingerprint);  // Load SHA1 mqtt broker cert fingerprint for connection validation.
+#endif
 
   // Connect to the MQTT server.
   client.setServer(MQTT_SERVER_IP, MQTT_PORT);
