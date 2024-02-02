@@ -10,12 +10,13 @@
  * wire the D3 pin to one pin of your push button switch.  Then wire GND on the Wemos 
  * D1 mini to the other pin of your push button switch.
  * 
- * NOTE:  You will need to enter the details of your wifi network and MQTT server in
+ * NOTE:  You will need to enter the details of your MQTT server in
  *        secrets.h, before you compile and upload to your board.
  */
 
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <WiFiManager.h>
 #include "secrets.h"
 
 #define ENABLE_SSL
@@ -24,8 +25,6 @@ const int BUTTON_PIN = D3;
 const int BAUD_SPEED = 115200;
 const char* OFF = "0";
 const char* ON = "1";
-
-const char* MQTT_CLIENT_NAME = "wemosD1MiniPowerswitchTailButton1";
 
 #ifdef ENABLE_SSL
   const int MQTT_PORT = 8883;
@@ -44,7 +43,6 @@ int prevButtonState = 0;   // The previous state of the button.
 const long DEBOUNCE = 200;   // The debounce time, in milliseconds.
 long toggleTime = 0;   // The last time the output pin was toggled.
 
-WiFiClient espClient;
 PubSubClient client(espClient);
 
 void connect_to_mqtt_server();
@@ -57,19 +55,8 @@ void setup()
   
   pinMode(BUTTON_PIN, INPUT);
 
-  //  Connect to the wifi network.
-  Serial.println();
-  Serial.print("Connecting to WiFi network ");
-  Serial.print(NETWORK_SSID);
-  Serial.print("..");
-  WiFi.begin(NETWORK_SSID, NETWORK_PASSWORD);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  
-  Serial.println("connected.");
+  WiFiManager wifiManager;
+  wifiManager.autoConnect("Light-switch-remote-AP");
 
 #ifdef ENABLE_SSL
   // Configure secure client connection.
@@ -87,7 +74,7 @@ void setup()
 
 void loop()
 {
-  if (! client.connected()) {
+  if (!client.connected()) {
     connect_to_mqtt_server();
   }
 
@@ -114,7 +101,7 @@ void connect_to_mqtt_server()
   Serial.print(MQTT_SERVER_IP);
   Serial.print("..");
   
-  while (! client.connected()) {
+  while (!client.connected()) {
     Serial.print(".");
  
     if (client.connect(MQTT_CLIENT_NAME, MQTT_USER, MQTT_PASSWORD)) {
