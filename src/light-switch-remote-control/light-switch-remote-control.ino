@@ -22,7 +22,7 @@
 
 #define ENABLE_SSL
 
-const int BUTTON_PIN = D3;   // GPIO3 on the XIAO ESP32-C6.
+const int BUTTON_PIN = D0;   // GPIO3 on the XIAO ESP32-C6.
 const int BAUD_SPEED = 115200;
 
 const char* OFF = "0";
@@ -52,7 +52,7 @@ void setup()
   Serial.begin(BAUD_SPEED);
   delay(10);
 
-  pinMode(BUTTON_PIN, INPUT_PULLUP);  // Use internal pull-up; button shorts to GND.
+  pinMode(BUTTON_PIN, INPUT);  // TTP223 drives HIGH/LOW directly.
 
   WiFiManager wifiManager;
   wifiManager.autoConnect("Light-switch-remote-AP");
@@ -78,7 +78,7 @@ void loop()
 
   button_state = digitalRead(BUTTON_PIN);
 
-  if (button_state != prevButtonState && millis() - toggleTime > DEBOUNCE) {
+  if (button_state == HIGH && prevButtonState == LOW && millis() - toggleTime > DEBOUNCE) {
     if (lampState == LOW) {
       client.publish(MQTT_TOPIC, ON);
     } else {
@@ -88,7 +88,7 @@ void loop()
     toggleTime = millis();
   }
 
-  prevButtonState = button_state;
+  prevButtonState = button_state;  
 }
 
 void connect_to_mqtt_server()
@@ -109,19 +109,24 @@ void connect_to_mqtt_server()
     }
   }
 
-  client.publish(MQTT_TOPIC, "Hello from XIAO ESP32-C6 Powerswitch Tail Button1");
+  client.publish(
+    "debug/lightswitchremotecontrol",
+    "Hello from XIAO ESP32-C6 Powerswitch Tail Button1"
+  );
   client.subscribe(MQTT_TOPIC);
 }
 
 void callback(char* topic, byte* payload, unsigned int length)
 {
-  lampState = *payload - 48;  // Convert ASCII data to an integer (either 1 or 0).
+  if (strcmp(topic, MQTT_TOPIC) != 0 || length == 0) return;
 
-  if (strcmp(topic, MQTT_TOPIC) == LOW) {
-    if (lampState == HIGH) {
-      Serial.println("Powerswitch tail ON");
-    } else {
-      Serial.println("Powerswitch tail OFF");
-    }
+  char cmd = (char)payload[0];
+
+  if (cmd == '1') {
+    lampState = HIGH;
+    Serial.println("Powerswitch tail ON");
+  } else if (cmd == '0') {
+    lampState = LOW;
+    Serial.println("Powerswitch tail OFF");
   }
 }
